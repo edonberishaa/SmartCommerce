@@ -1,4 +1,23 @@
+using backend.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
+builder.Services.AddDbContext<SmartCommerceContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("SmartCommerceDB")));
+
 
 // Add services to the container.
 
@@ -11,7 +30,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -26,6 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
